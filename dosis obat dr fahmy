@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Dosis Obat Anak & Racikan Puyer Otomatis</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        medical: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Sembunyikan tombol spin pada input number */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Print Media Styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 0 !important;
+            }
+            .print-card {
+                box-shadow: none !important;
+                border: 1px solid #000 !important;
+                border-radius: 8px !important;
+                padding: 15px !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen pb-12">
+
+    <!-- TOP HEADER -->
+    <header class="bg-gradient-to-r from-teal-800 via-teal-700 to-cyan-800 text-white shadow-lg no-print">
+        <div class="max-w-6xl mx-auto px-4 py-4 sm:px-6 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center text-white text-xl shadow-inner">
+                    <i class="fa-solid fa-laptop-medical"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg sm:text-xl tracking-tight leading-tight">PediatriDose Pro <span class="text-xs bg-teal-300/30 text-teal-100 font-normal px-2 py-0.5 rounded-full border border-teal-200/20">v3.5 Complete</span></h1>
+                    <p class="text-xs text-teal-100/90 hidden sm:block">Kalkulator Dosis Obat Anak & Pembuat Racikan Puyer Indonesia</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 text-xs bg-white/10 backdrop-blur px-3 py-1.5 rounded-xl border border-white/20">
+                <i class="fa-solid fa-circle-check text-emerald-300"></i>
+                <span class="font-medium hidden sm:inline">>45 Database Obat Terverifikasi</span>
+                <span class="sm:hidden">Pediatri ID</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-6xl mx-auto px-3 sm:px-6 mt-4 sm:mt-6 space-y-5">
+
+        <!-- GLOBAL PASIEN & BERAT BADAN HEADER -->
+        <section class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 no-print">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                <div class="flex items-center space-x-2 text-teal-700 font-bold text-sm sm:text-base">
+                    <i class="fa-solid fa-user-nurse"></i>
+                    <span>Informasi Pasien & Berat Badan (Kalkulasi Otomatis)</span>
+                </div>
+                <span class="text-xs text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full font-semibold">Tersinkron Otomatis</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Nama Pasien -->
+                <div>
+                    <label for="global-patient-name" class="block text-xs font-semibold text-slate-600 mb-1">Nama Pasien / Anak</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <i class="fa-solid fa-child"></i>
+                        </span>
+                        <input type="text" id="global-patient-name" placeholder="Misal: An. Budi" 
+                            class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <!-- Berat Badan -->
+                <div>
+                    <label for="global-weight" class="block text-xs font-semibold text-slate-600 mb-1">
+                        Berat Badan (BB) <span class="text-rose-500">*Input Utama</span>
+                    </label>
+                    <div class="flex items-center space-x-2">
+                        <div class="relative flex-1">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-teal-600 font-bold">
+                                <i class="fa-solid fa-weight-scale"></i>
+                            </span>
+                            <input type="number" id="global-weight" step="0.5" min="1" max="100" placeholder="10" 
+                                class="w-full pl-9 pr-12 py-2.5 bg-teal-50/50 border border-teal-200 rounded-xl text-base font-extrabold text-teal-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition">
+                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-bold text-teal-600">kg</span>
+                        </div>
+
+                        <!-- Stepper BB (+/- 0.5 kg) -->
+                        <div class="flex items-center space-x-1">
+                            <button type="button" onclick="adjustWeight(-0.5)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold flex items-center justify-center transition border border-slate-200 active:scale-95 shadow-sm" title="Kurang 0.5 kg">
+                                <i class="fa-solid fa-minus text-xs"></i>
+                            </button>
+                            <button type="button" onclick="adjustWeight(0.5)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold flex items-center justify-center transition border border-slate-200 active:scale-95 shadow-sm" title="Tambah 0.5 kg">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preset BB Cepat -->
+            <div class="mt-3 flex items-center space-x-2 overflow-x-auto pt-1 pb-0.5">
+                <span class="text-[11px] text-slate-400 font-medium whitespace-nowrap mr-1">Preset BB Cepat:</span>
+                <button type="button" onclick="setWeightPreset(5)" class="px-3 py-1 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 transition">5 kg</button>
+                <button type="button" onclick="setWeightPreset(8)" class="px-3 py-1 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 transition">8 kg</button>
+                <button type="button" onclick="setWeightPreset(10)" class="px-3 py-1 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 transition">10 kg</button>
+                <button type="button" onclick="setWeightPreset(12.5)" class="px-3 py-1 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 transition">12.5 kg</button>
+                <button type="button" onclick="setWeightPreset(15)" class="px-3 py-1 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 transition">15 kg</button>
+                <button type="button" onclick="setWeightPreset(20)" class="px-3 py-1 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 transition">20 kg</button>
+                <button type="button" onclick="setWeightPreset(25)" class="px-3 py-1 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 transition">25 kg</button>
+            </div>
+        </section>
+
+        <!-- NAVIGATION TABS -->
+        <div class="bg-slate-200/80 p-1.5 rounded-2xl flex space-x-1 no-print shadow-inner">
+            <button id="btn-tab-1" onclick="switchTab('single')" class="flex-1 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center space-x-2 transition-all duration-200 bg-white text-teal-800 shadow-sm">
+                <i class="fa-solid fa-calculator"></i>
+                <span class="truncate">Dosis Tunggal Otomatis (Tablet/Sirup)</span>
+            </button>
+            <button id="btn-tab-2" onclick="switchTab('puyer')" class="flex-1 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center space-x-2 transition-all duration-200 text-slate-600 hover:text-slate-900">
+                <i class="fa-solid fa-mortar-pestle"></i>
+                <span class="truncate">Racikan Puyer Otomatis (Compounding)</span>
+            </button>
+        </div>
+
+        <!-- ================= TAB 1: DOSIS TUNGGAL OTOMATIS ================= -->
+        <div id="tab-single" class="space-y-5 no-print">
+            
+            <!-- FILTER KATEGORI OBAT -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-2">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Filter Kategori Obat:</label>
+                <div id="category-filter-container" class="flex flex-wrap gap-1.5 text-xs">
+                    <!-- Dynamic Buttons -->
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                
+                <!-- INPUT PANEL -->
+                <div class="lg:col-span-5 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex items-center space-x-2 text-teal-700 font-bold border-b border-slate-100 pb-2">
+                        <i class="fa-solid fa-pills"></i>
+                        <h2>Pilih Obat & Sediaan</h2>
+                    </div>
+
+                    <!-- Pencarian Nama Obat -->
+                    <div>
+                        <label for="drug-search" class="block text-xs font-semibold text-slate-600 mb-1">Cari Obat</label>
+                        <div class="relative">
+                            <input type="text" id="drug-search" placeholder="Ketik nama obat (Cth: Asam Traneksamat, Azithromycin)..." 
+                                oninput="filterDrugDropdown()"
+                                class="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <button id="clear-search-btn" onclick="clearDrugSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Select Obat -->
+                    <div>
+                        <label for="single-drug-select" class="block text-xs font-semibold text-slate-600 mb-1">Nama Obat (>40 Database Indonesia)</label>
+                        <select id="single-drug-select" onchange="onSingleDrugSelect()" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+
+                    <!-- Dropdown Select Sediaan (Tablet / Sirup / Drops / Dry Syrup) -->
+                    <div>
+                        <label for="single-sediaan-select" class="block text-xs font-semibold text-slate-600 mb-1">Bentuk & Sediaan Obat</label>
+                        <select id="single-sediaan-select" onchange="calculateSingleDose()" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-teal-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+
+                    <!-- Info Parameter Dosis Terstandar (Readonly) -->
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Standar Dosis Sistem:</span>
+                            <strong id="info-dose-std" class="text-slate-800">-</strong>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Frekuensi Pemberian:</span>
+                            <strong id="info-freq-std" class="text-slate-800">-</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HASIL KALKULASI OTOMATIS PANEL -->
+                <div class="lg:col-span-7 space-y-4">
+                    
+                    <!-- Placeholder -->
+                    <div id="single-placeholder" class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 text-center flex flex-col items-center justify-center min-h-[320px]">
+                        <div class="w-16 h-16 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center text-2xl mb-3">
+                            <i class="fa-solid fa-calculator"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-700 text-base">Perhitungan Dosis Otomatis</h3>
+                        <p class="text-xs text-slate-400 max-w-xs mt-1">Masukkan Berat Badan (BB) dan pilih Nama Obat untuk melihat hasil dosis presisi secara otomatis.</p>
+                    </div>
+
+                    <!-- CARD HASIL KALKULASI UTAMA -->
+                    <div id="single-result-card" class="hidden bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 text-white rounded-2xl p-5 shadow-xl space-y-4 relative overflow-hidden">
+                        
+                        <i class="fa-solid fa-prescription-bottle-medical text-white/5 text-9xl absolute -right-4 -bottom-4 pointer-events-none"></i>
+
+                        <div class="flex items-center justify-between border-b border-teal-700/60 pb-3">
+                            <div>
+                                <span id="res-drug-category" class="text-[10px] bg-teal-400/20 text-teal-200 border border-teal-300/30 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Kategori</span>
+                                <h3 id="res-drug-title" class="text-xl font-extrabold text-white leading-tight mt-1">-</h3>
+                            </div>
+                            <span id="res-form-type-badge" class="text-xs bg-amber-400 text-slate-950 px-3 py-1 rounded-xl font-black shadow">TABLET</span>
+                        </div>
+
+                        <!-- HIGHLIGHT ATURAN MINUM OTOMATIS -->
+                        <div class="bg-white/10 backdrop-blur border border-white/15 rounded-xl p-4 space-y-1">
+                            <span class="text-xs text-teal-200 font-semibold uppercase tracking-wider block">Aturan Minum / Signa Otomatis:</span>
+                            <div id="res-signa-auto" class="text-lg sm:text-2xl font-black text-amber-300 leading-tight">
+                                3 x sehari 1/2 Tablet
+                            </div>
+                            <p id="res-sediaan-desc" class="text-xs text-teal-100/90 pt-1">Sediaan: Tablet 500 mg</p>
+                        </div>
+
+                        <!-- GRID HIGHLIGHT DETAIL DOSIS -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- Jumlah Fisik Minum -->
+                            <div class="bg-black/20 backdrop-blur border border-white/10 rounded-xl p-3">
+                                <span class="text-[11px] text-teal-200 block mb-0.5">Jumlah Fisik / Kali Minum</span>
+                                <div id="res-physical-amount" class="text-lg sm:text-xl font-black text-emerald-300 leading-tight">-</div>
+                                <span id="res-physical-range" class="text-[10px] text-teal-200/80 block mt-1">Rentang: -</span>
+                            </div>
+
+                            <!-- Dosis mg per kali -->
+                            <div class="bg-black/20 backdrop-blur border border-white/10 rounded-xl p-3">
+                                <span class="text-[11px] text-teal-200 block mb-0.5">Dosis mg / Kali Minum</span>
+                                <div id="res-mg-per-dose" class="text-lg sm:text-xl font-black text-cyan-200 leading-tight">-</div>
+                                <span id="res-mg-range" class="text-[10px] text-teal-200/80 block mt-1">Rentang: -</span>
+                            </div>
+                        </div>
+
+                        <!-- SECONDARY INFO -->
+                        <div class="bg-black/30 rounded-xl p-3.5 space-y-2 border border-white/5 text-xs">
+                            <div class="flex justify-between items-center border-b border-white/10 pb-1.5">
+                                <span class="text-teal-200">Total Dosis Harian (mg/hari):</span>
+                                <span id="res-daily-mg" class="font-bold text-white text-right">-</span>
+                            </div>
+                            <div class="flex justify-between items-start pt-0.5">
+                                <span class="text-teal-200">Catatan Klinis:</span>
+                                <span id="res-notes" class="font-medium text-slate-200 text-right max-w-[220px] text-[11px]">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Transfer ke Puyer -->
+                        <button type="button" onclick="transferSingleToPuyer()" class="w-full py-3 bg-teal-400 hover:bg-teal-300 text-slate-950 font-black rounded-xl text-xs transition flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/20 active:scale-98">
+                            <span>Jadikan Obat Ini Dalam Racikan Puyer</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: KALKULATOR RACIKAN PUYER OTOMATIS ================= -->
+        <div id="tab-puyer" class="space-y-5 no-print hidden">
+            
+            <!-- HEADER PARAMETER PUYER -->
+            <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <div class="flex items-center space-x-2 text-teal-700 font-bold">
+                        <i class="fa-solid fa-mortar-pestle"></i>
+                        <h2>Parameter Resep Racikan Puyer</h2>
+                    </div>
+                    <span class="text-xs text-slate-400">Langkah Compounding</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="puyer-count" class="block text-xs font-semibold text-slate-600 mb-1">
+                            Jumlah Bungkus Puyer yang Dibuat
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="puyer-count" value="10" min="1" max="100" oninput="calculatePuyerAll()" 
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-extrabold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <div class="flex space-x-1">
+                                <button type="button" onclick="setPuyerCountPreset(10)" class="px-2.5 py-2 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border rounded-lg text-xs font-bold text-slate-600">10</button>
+                                <button type="button" onclick="setPuyerCountPreset(12)" class="px-2.5 py-2 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border rounded-lg text-xs font-bold text-slate-600">12</button>
+                                <button type="button" onclick="setPuyerCountPreset(15)" class="px-2.5 py-2 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border rounded-lg text-xs font-bold text-slate-600">15</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="puyer-signa" class="block text-xs font-semibold text-slate-600 mb-1">
+                            Aturan Minum (Signa)
+                        </label>
+                        <input type="text" id="puyer-signa" value="3 x sehari 1 bungkus (Sesudah Makan)" oninput="updatePrescriptionSummary()" 
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLE MULTI OBAT PUYER -->
+            <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center space-x-2">
+                            <span>Komponen Obat Racikan</span>
+                            <span id="puyer-items-count" class="bg-teal-100 text-teal-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0 Obat</span>
+                        </h3>
+                        <p class="text-xs text-slate-400">Pilih obat dari database, sistem akan menghitung kebutuhan tablet utuh secara otomatis.</p>
+                    </div>
+
+                    <button type="button" onclick="addPuyerRow()" class="px-3.5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-sm active:scale-95">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>+ Tambah Obat Racikan</span>
+                    </button>
+                </div>
+
+                <!-- CONTAINER ROWS PUYER -->
+                <div id="puyer-rows-container" class="space-y-3">
+                    <!-- Dynamic Rows -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="puyer-empty-state" class="py-8 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                    <i class="fa-solid fa-pills text-slate-300 text-3xl mb-2 block"></i>
+                    <p class="text-xs font-semibold text-slate-500">Belum ada obat dalam racikan puyer.</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Klik tombol "<span class="text-teal-600 font-bold">+ Tambah Obat Racikan</span>" di atas untuk memulai.</p>
+                </div>
+            </div>
+
+            <!-- REKAPITULASI & ETIKET RESEP CARD -->
+            <div id="puyer-summary-card" class="bg-white rounded-2xl p-5 shadow-md border border-teal-200/80 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-file-prescription"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-slate-800 text-sm sm:text-base">Ringkasan Etiket / Resep Racikan</h3>
+                            <p class="text-[11px] text-slate-400">Siap untuk penyiapan di apotek / rekam medis</p>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="triggerPrintPrescription()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow active:scale-95">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak / Simpan Resep</span>
+                    </button>
+                </div>
+
+                <!-- ETIKET PREVIEW -->
+                <div id="printable-area" class="print-card bg-slate-50/80 rounded-xl p-4 border border-slate-200 space-y-3">
+                    <div class="flex justify-between items-start border-b border-slate-300 pb-2">
+                        <div>
+                            <h4 class="font-extrabold text-slate-900 text-sm tracking-wide">RESEP RACIKAN PUYER (PEDIATRI)</h4>
+                            <p class="text-[11px] text-slate-500">Tanggal: <span id="summary-date" class="font-medium">--/--/----</span></p>
+                        </div>
+                        <div class="text-right text-[11px] text-slate-600">
+                            <p>Pasien: <strong id="summary-patient-name" class="text-slate-900">An. -</strong></p>
+                            <p>BB Pasien: <strong id="summary-patient-weight" class="text-slate-900">0 kg</strong></p>
+                        </div>
+                    </div>
+
+                    <!-- Table Rekapitulasi Obat -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-300 text-slate-700 font-bold bg-slate-200/50">
+                                    <th class="py-2 px-2">No</th>
+                                    <th class="py-2 px-2">Nama Obat</th>
+                                    <th class="py-2 px-2">Sediaan Utuh</th>
+                                    <th class="py-2 px-2">Dosis / Bungkus</th>
+                                    <th class="py-2 px-2 text-right">Total Kebutuhan Tablet</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summary-table-body" class="divide-y divide-slate-200">
+                                <!-- Summary Items -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-2">
+                        <div>
+                            <span class="text-slate-500 font-medium">Jumlah Racikan:</span>
+                            <strong id="summary-puyer-count" class="text-teal-700 font-bold">10 Bungkus</strong>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 font-medium">Signa / Aturan Minum:</span>
+                            <strong id="summary-signa" class="text-slate-900 font-bold">3 x sehari 1 bungkus</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER DISCLAIMER -->
+    <footer class="max-w-6xl mx-auto px-4 mt-8 text-center text-slate-400 text-[11px] leading-relaxed no-print">
+        <p class="font-semibold text-slate-500">Aplikasi PediatriDose - Sistem Dosis Obat Anak & Compounding Puyer Otomatis</p>
+        <p>Disclaimer: Aplikasi ini berfungsi sebagai alat bantu kalkulasi presisi matematis medis. Keputusan klinis dan verifikasi akhir resep tetap merupakan wewenang Dokter / Apoteker.</p>
+    </footer>
+
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        /**
+         * DATABASE >45 OBAT PEDIATRI INDONESIA LENGKAP
+         * Termasuk METHISOPRINOL, ACYCLO VIR, ASAM TRANEKSAMAT, AZITHROMYCIN, TREMENZA, dll.
+         */
+        const DRUG_DATABASE = [
+            // 1. ANTIVIRUS & IMUNOMODULATOR
+            {
+                id: 'methisoprinol',
+                name: 'Methisoprinol (Isoprinosine)',
+                category: 'Antivirus & Imunomodulator',
+                doseMin: 12.5, doseMax: 16.7, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3-4x sehari (50 mg/kg/hari terbagi)',
+                notes: 'Imunomodulator & Antivirus (misal ISPA, Morbili, Varicella).',
+                sediaan: [
+                    { type: 'syrup', label: 'Sirup 250 mg / 5 mL', mg: 250, ml: 5, unitName: 'mL' },
+                    { type: 'tablet', label: 'Tablet 500 mg', mg: 500, unitName: 'Tablet' }
+                ]
+            },
+            {
+                id: 'acyclovir',
+                name: 'Acyclovir',
+                category: 'Antivirus & Imunomodulator',
+                doseMin: 20, doseMax: 20, unit: 'mg/kg/dosis',
+                freqTimes: 4,
+                freqText: '4-5x sehari (tiap 4-5 jam)',
+                notes: 'Varicella / Herpes simplex. Maksimal 800 mg/dosis.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 200 mg', mg: 200, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 400 mg', mg: 400, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup / Suspensi 200 mg / 5 mL', mg: 200, ml: 5, unitName: 'mL' }
+                ]
+            },
+
+            // 2. HEMOSTATIK
+            {
+                id: 'asam_traneksamat',
+                name: 'Asam Traneksamat',
+                category: 'Hemostatik',
+                doseMin: 10, doseMax: 25, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (sesudah makan)',
+                notes: 'Hemostatik antiperdaraaan. Dosis lazim 10-25 mg/kg/kali.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 250 mg', mg: 250, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Kaplet 500 mg', mg: 500, unitName: 'Kaplet' },
+                    { type: 'syrup', label: 'Sirup 250 mg / 5 mL', mg: 250, ml: 5, unitName: 'mL' }
+                ]
+            },
+
+            // 3. ANTIBIOTIK
+            {
+                id: 'azithromycin',
+                name: 'Azithromycin',
+                category: 'Antibiotik',
+                doseMin: 10, doseMax: 10, unit: 'mg/kg/hari',
+                freqTimes: 1,
+                freqText: '1x sehari (dosis tunggal harian) - HABISKAN!',
+                notes: 'Antibiotik Makrolida. Diberikan 1x sehari selama 3-5 hari. Habiskan.',
+                sediaan: [
+                    { type: 'syrup', label: 'Dry Syrup 200 mg / 5 mL', mg: 200, ml: 5, unitName: 'mL' },
+                    { type: 'tablet', label: 'Kaplet 250 mg', mg: 250, unitName: 'Kaplet' },
+                    { type: 'tablet', label: 'Kaplet 500 mg', mg: 500, unitName: 'Kaplet' }
+                ]
+            },
+            {
+                id: 'amoxicillin',
+                name: 'Amoxicillin',
+                category: 'Antibiotik',
+                doseMin: 10, doseMax: 15, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (tiap 8 jam) - HABISKAN!',
+                notes: 'Dosis standar 30-50 mg/kg/hari dibagi 3 dosis. Habiskan.',
+                sediaan: [
+                    { type: 'tablet', label: 'Kaplet 500 mg', mg: 500, unitName: 'Kaplet' },
+                    { type: 'tablet', label: 'Kaplet 250 mg', mg: 250, unitName: 'Kaplet' },
+                    { type: 'syrup', label: 'Dry Syrup 125 mg / 5 mL', mg: 125, ml: 5, unitName: 'mL' },
+                    { type: 'syrup', label: 'Forte Dry Syrup 250 mg / 5 mL', mg: 250, ml: 5, unitName: 'mL' },
+                    { type: 'drops', label: 'Drops 100 mg / 1 mL', mg: 100, ml: 1, unitName: 'drops' }
+                ]
+            },
+            {
+                id: 'cefadroxil',
+                name: 'Cefadroxil',
+                category: 'Antibiotik',
+                doseMin: 12.5, doseMax: 25, unit: 'mg/kg/dosis',
+                freqTimes: 2,
+                freqText: '2x sehari (tiap 12 jam) - HABISKAN!',
+                notes: 'Dosis 25-50 mg/kg/hari dibagi 2 dosis. Habiskan.',
+                sediaan: [
+                    { type: 'tablet', label: 'Kapsul 500 mg', mg: 500, unitName: 'Kapsul' },
+                    { type: 'tablet', label: 'Kapsul 250 mg', mg: 250, unitName: 'Kapsul' },
+                    { type: 'syrup', label: 'Dry Syrup 125 mg / 5 mL', mg: 125, ml: 5, unitName: 'mL' },
+                    { type: 'syrup', label: 'Forte Dry Syrup 250 mg / 5 mL', mg: 250, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'cefixime',
+                name: 'Cefixime',
+                category: 'Antibiotik',
+                doseMin: 2, doseMax: 4, unit: 'mg/kg/dosis',
+                freqTimes: 2,
+                freqText: '2x sehari (tiap 12 jam) - HABISKAN!',
+                notes: 'Dosis 4-8 mg/kg/hari dibagi 2 dosis.',
+                sediaan: [
+                    { type: 'tablet', label: 'Kapsul 100 mg', mg: 100, unitName: 'Kapsul' },
+                    { type: 'tablet', label: 'Kapsul 200 mg', mg: 200, unitName: 'Kapsul' },
+                    { type: 'syrup', label: 'Dry Syrup 100 mg / 5 mL', mg: 100, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'spiramycin',
+                name: 'Spiramycin',
+                category: 'Antibiotik',
+                doseMin: 25, doseMax: 37.5, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '2-3x sehari - HABISKAN!',
+                notes: 'Antibiotik makrolida (50-75 mg/kg/hari bagi 2-3 dosis).',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 250 mg', mg: 250, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 500 mg', mg: 500, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Dry Syrup 125 mg / 5 mL', mg: 125, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'cotrimoxazole',
+                name: 'Cotrimoxazole (TMP + SMX)',
+                category: 'Antibiotik',
+                doseMin: 4, doseMax: 6, unit: 'mg TMP/kg/dosis',
+                freqTimes: 2,
+                freqText: '2x sehari (tiap 12 jam) - HABISKAN!',
+                notes: 'Dosis berdasarkan TMP. TMP 8-12 mg/kg/hari bagi 2.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet Pediatrik (TMP 20 mg + SMX 100 mg)', mg: 20, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet Dewasa (TMP 80 mg + SMX 400 mg)', mg: 80, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet Forte (TMP 160 mg + SMX 800 mg)', mg: 160, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup (TMP 40 mg + SMX 200 mg / 5 mL)', mg: 40, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'erythromycin',
+                name: 'Eritromisin',
+                category: 'Antibiotik',
+                doseMin: 7.5, doseMax: 12.5, unit: 'mg/kg/dosis',
+                freqTimes: 4,
+                freqText: '4x sehari (tiap 6 jam) - HABISKAN!',
+                notes: '30-50 mg/kg/hari bagi 4 dosis.',
+                sediaan: [
+                    { type: 'tablet', label: 'Kaplet 250 mg', mg: 250, unitName: 'Kaplet' },
+                    { type: 'tablet', label: 'Kaplet 500 mg', mg: 500, unitName: 'Kaplet' },
+                    { type: 'syrup', label: 'Dry Syrup 200 mg / 5 mL', mg: 200, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'chloramphenicol',
+                name: 'Chloramphenicol',
+                category: 'Antibiotik',
+                doseMin: 12.5, doseMax: 25, unit: 'mg/kg/dosis',
+                freqTimes: 4,
+                freqText: '4x sehari (tiap 6 jam) - HABISKAN!',
+                notes: '50-100 mg/kg/hari bagi 4. Indikasi khusus (tifoid).',
+                sediaan: [
+                    { type: 'tablet', label: 'Kapsul 250 mg', mg: 250, unitName: 'Kapsul' },
+                    { type: 'tablet', label: 'Kapsul 500 mg', mg: 500, unitName: 'Kapsul' },
+                    { type: 'syrup', label: 'Sirup 125 mg / 5 mL', mg: 125, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'metronidazole',
+                name: 'Metronidazole',
+                category: 'Antibiotik',
+                doseMin: 7.5, doseMax: 10, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (bersama makanan)',
+                notes: 'Amoebiasis / giardiasis / anaerob.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 250 mg', mg: 250, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 500 mg', mg: 500, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 125 mg / 5 mL', mg: 125, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'ampicillin',
+                name: 'Ampicillin',
+                category: 'Antibiotik',
+                doseMin: 12.5, doseMax: 25, unit: 'mg/kg/dosis',
+                freqTimes: 4,
+                freqText: '4x sehari (1 jam sebelum makan) - HABISKAN!',
+                notes: 'Diminum 1 jam sebelum makan.',
+                sediaan: [
+                    { type: 'tablet', label: 'Kaplet 250 mg', mg: 250, unitName: 'Kaplet' },
+                    { type: 'tablet', label: 'Kaplet 500 mg', mg: 500, unitName: 'Kaplet' },
+                    { type: 'syrup', label: 'Dry Syrup 125 mg / 5 mL', mg: 125, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'furazolidone',
+                name: 'Furazolidone',
+                category: 'Antibiotik',
+                doseMin: 1.25, doseMax: 2, unit: 'mg/kg/dosis',
+                freqTimes: 4,
+                freqText: '4x sehari (sesudah makan)',
+                notes: 'Untuk diare infeksi bakteri / giardia.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 100 mg', mg: 100, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 50 mg / 5 mL', mg: 50, ml: 5, unitName: 'mL' }
+                ]
+            },
+
+            // 3. ANTIVIRUS & ANTIJAMUR
+            {
+                id: 'acyclovir',
+                name: 'Acyclovir',
+                category: 'Antivirus/Antijamur',
+                doseMin: 20, doseMax: 20, unit: 'mg/kg/dosis',
+                freqTimes: 4,
+                freqText: '4-5x sehari (tiap 4-6 jam)',
+                notes: 'Varicella / Herpes simplex. Maks 800 mg/dosis.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 200 mg', mg: 200, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 400 mg', mg: 400, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 200 mg / 5 mL', mg: 200, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'nystatin',
+                name: 'Nystatin',
+                category: 'Antivirus/Antijamur',
+                doseMin: 100000, doseMax: 200000, unit: 'IU/dosis',
+                freqTimes: 4,
+                freqText: '4x sehari (Teteskan pada mulut/sariawan)',
+                notes: 'Antijamur oral candidiasis / thrush.',
+                sediaan: [
+                    { type: 'drops', label: 'Oral Drops 100.000 IU / 1 mL', mg: 100000, ml: 1, unitName: 'mL' },
+                    { type: 'tablet', label: 'Tablet Oral 100.000 IU', mg: 100000, unitName: 'Tablet' }
+                ]
+            },
+            {
+                id: 'griseofulvin',
+                name: 'Griseofulvin',
+                category: 'Antivirus/Antijamur',
+                doseMin: 10, doseMax: 20, unit: 'mg/kg/hari',
+                freqTimes: 1,
+                freqText: '1-2x sehari (bersama makanan berlemak)',
+                notes: 'Dermatofitosis / tinea capitis anak.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 125 mg', mg: 125, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 500 mg', mg: 500, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Suspensi 125 mg / 5 mL', mg: 125, ml: 5, unitName: 'mL' }
+                ]
+            },
+
+            // 4. ANALGESIK & ANTIPIRETIK
+            {
+                id: 'paracetamol',
+                name: 'Paracetamol',
+                category: 'Analgesik/Antipiretik',
+                doseMin: 10, doseMax: 15, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3-4x sehari (tiap 4-6 jam jika demam)',
+                notes: 'Maksimum 60 mg/kg/hari. Aman sebelum/sesudah makan.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 500 mg', mg: 500, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 250 mg (Kunyah/Pediatrik)', mg: 250, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 100 mg (Pediatrik)', mg: 100, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 120 mg / 5 mL', mg: 120, ml: 5, unitName: 'mL' },
+                    { type: 'syrup', label: 'Sirup Forte 250 mg / 5 mL', mg: 250, ml: 5, unitName: 'mL' },
+                    { type: 'drops', label: 'Drops 100 mg / 1 mL', mg: 100, ml: 1, unitName: 'drops' }
+                ]
+            },
+            {
+                id: 'ibuprofen',
+                name: 'Ibuprofen',
+                category: 'Analgesik/Antipiretik',
+                doseMin: 5, doseMax: 10, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3-4x sehari (sesudah makan)',
+                notes: 'Berikan bersama/sesudah makan.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 200 mg', mg: 200, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 400 mg', mg: 400, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 100 mg / 5 mL', mg: 100, ml: 5, unitName: 'mL' },
+                    { type: 'syrup', label: 'Sirup Forte 200 mg / 5 mL', mg: 200, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'antalgin',
+                name: 'Antalgin / Metamizole',
+                category: 'Analgesik/Antipiretik',
+                doseMin: 10, doseMax: 15, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (sesudah makan)',
+                notes: 'Demam tinggi / nyeri berat.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 500 mg', mg: 500, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 250 mg / 5 mL', mg: 250, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'asam_mefenamat',
+                name: 'Asam Mefenamat',
+                category: 'Analgesik/Antipiretik',
+                doseMin: 6.5, doseMax: 10, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (sesudah makan)',
+                notes: 'Anak usia > 6 bulan. Wajib sesudah makan.',
+                sediaan: [
+                    { type: 'tablet', label: 'Kaplet 500 mg', mg: 500, unitName: 'Kaplet' },
+                    { type: 'tablet', label: 'Kaplet 250 mg', mg: 250, unitName: 'Kaplet' },
+                    { type: 'syrup', label: 'Sirup 50 mg / 5 mL', mg: 50, ml: 5, unitName: 'mL' }
+                ]
+            },
+
+            // 5. BATUK / PILEK / ASMA
+            {
+                id: 'tremenza',
+                name: 'Tremenza (Triprolidine + Pseudoephedrine)',
+                category: 'Batuk/Pilek/Asma',
+                doseMin: 0.8, doseMax: 1.0, unit: 'mg Pseudo/kg/dosis',
+                freqTimes: 3,
+                freqText: '3-4x sehari',
+                notes: 'Kombinasi Pseudoephedrine & Triprolidine flu/pilek.',
+                sediaan: [
+                    { type: 'syrup', label: 'Sirup (Triprolidine 1.25 mg + Pseudoephedrine 30 mg / 5 mL)', mg: 30, ml: 5, unitName: 'mL' },
+                    { type: 'tablet', label: 'Tablet (Triprolidine 2.5 mg + Pseudoephedrine 60 mg)', mg: 60, unitName: 'Tablet' }
+                ]
+            },
+            {
+                id: 'ambroxol',
+                name: 'Ambroxol',
+                category: 'Batuk/Pilek/Asma',
+                doseMin: 0.4, doseMax: 0.5, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (sesudah makan)',
+                notes: 'Pengencer dahak (mukolitik).',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 30 mg', mg: 30, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 15 mg / 5 mL', mg: 15, ml: 5, unitName: 'mL' },
+                    { type: 'syrup', label: 'Sirup 30 mg / 5 mL', mg: 30, ml: 5, unitName: 'mL' },
+                    { type: 'drops', label: 'Drops 15 mg / 1 mL', mg: 15, ml: 1, unitName: 'drops' }
+                ]
+            },
+            {
+                id: 'bromhexine',
+                name: 'Bromhexine',
+                category: 'Batuk/Pilek/Asma',
+                doseMin: 0.15, doseMax: 0.3, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (sesudah makan)',
+                notes: 'Mukolitik pengencer dahak.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 8 mg', mg: 8, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 4 mg / 5 mL', mg: 4, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'guaifenesin',
+                name: 'Guaifenesin (GG)',
+                category: 'Batuk/Pilek/Asma',
+                doseMin: 3.5, doseMax: 7, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3-4x sehari',
+                notes: 'Ekspektoran pelancar dahak.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 100 mg', mg: 100, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 50 mg / 5 mL', mg: 50, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'acetylcysteine',
+                name: 'Acetylcysteine',
+                category: 'Batuk/Pilek/Asma',
+                doseMin: 5, doseMax: 10, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '2-3x sehari',
+                notes: 'Mukolitik mukus tebal.',
+                sediaan: [
+                    { type: 'tablet', label: 'Kapsul 200 mg', mg: 200, unitName: 'Kapsul' },
+                    { type: 'syrup', label: 'Granul / Sirup 100 mg / 5 mL', mg: 100, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'salbutamol',
+                name: 'Salbutamol',
+                category: 'Batuk/Pilek/Asma',
+                doseMin: 0.05, doseMax: 0.1, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3-4x sehari',
+                notes: 'Bronkodilator pelega napas/mengi.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 2 mg', mg: 2, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 4 mg', mg: 4, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 2 mg / 5 mL', mg: 2, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'terbutaline',
+                name: 'Terbutaline',
+                category: 'Batuk/Pilek/Asma',
+                doseMin: 0.05, doseMax: 0.075, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari',
+                notes: 'Pelega saluran napas.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 2.5 mg', mg: 2.5, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 5 mg', mg: 5, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 1.5 mg / 5 mL', mg: 1.5, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'pseudoephedrine',
+                name: 'Pseudoephedrine',
+                category: 'Batuk/Pilek/Asma',
+                doseMin: 0.8, doseMax: 1.0, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3-4x sehari',
+                notes: 'Dekongestan pelega hidung tersumbat.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 30 mg', mg: 30, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 60 mg', mg: 60, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 15 mg / 5 mL', mg: 15, ml: 5, unitName: 'mL' },
+                    { type: 'drops', label: 'Drops 7.5 mg / 0.8 mL', mg: 7.5, ml: 0.8, unitName: 'drops' }
+                ]
+            },
+
+            // 6. ANTIHISTAMIN / ALERGI
+            {
+                id: 'cetirizine',
+                name: 'Cetirizine',
+                category: 'Antihistamin/Alergi',
+                doseMin: 0.25, doseMax: 0.25, unit: 'mg/kg/dosis',
+                freqTimes: 1,
+                freqText: '1-2x sehari',
+                notes: 'Antihistamin generasi II minim kantuk.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 10 mg', mg: 10, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 5 mg / 5 mL', mg: 5, ml: 5, unitName: 'mL' },
+                    { type: 'drops', label: 'Drops 10 mg / 1 mL', mg: 10, ml: 1, unitName: 'drops' }
+                ]
+            },
+            {
+                id: 'ctm',
+                name: 'CTM (Chlorpheniramine)',
+                category: 'Antihistamin/Alergi',
+                doseMin: 0.08, doseMax: 0.1, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3-4x sehari',
+                notes: 'Efek samping menyebabkan kantuk.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 4 mg', mg: 4, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 2 mg / 5 mL', mg: 2, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'loratadine',
+                name: 'Loratadine',
+                category: 'Antihistamin/Alergi',
+                doseMin: 0.1, doseMax: 0.2, unit: 'mg/kg/dosis',
+                freqTimes: 1,
+                freqText: '1x sehari',
+                notes: 'Untuk anak usia > 2 tahun.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 10 mg', mg: 10, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 5 mg / 5 mL', mg: 5, ml: 5, unitName: 'mL' }
+                ]
+            },
+
+            // 7. KORTIKOSTEROID
+            {
+                id: 'dexamethasone',
+                name: 'Dexamethasone',
+                category: 'Kortikosteroid',
+                doseMin: 0.01, doseMax: 0.02, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (sesudah makan)',
+                notes: 'Antiinflamasi kuat. Berikan sesudah makan.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 0.5 mg', mg: 0.5, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 0.75 mg', mg: 0.75, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 0.5 mg / 5 mL', mg: 0.5, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'methylprednisolone',
+                name: 'Methylprednisolone',
+                category: 'Kortikosteroid',
+                doseMin: 0.15, doseMax: 0.25, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3-4x sehari (sesudah makan)',
+                notes: 'Berikan bersama/sesudah makan.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 4 mg', mg: 4, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 8 mg', mg: 8, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 16 mg', mg: 16, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 4 mg / 5 mL', mg: 4, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'prednisone',
+                name: 'Prednisone',
+                category: 'Kortikosteroid',
+                doseMin: 0.5, doseMax: 1.0, unit: 'mg/kg/dosis',
+                freqTimes: 2,
+                freqText: '1-3x sehari (sesudah makan)',
+                notes: 'Kortikosteroid oral.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 5 mg', mg: 5, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 5 mg / 5 mL', mg: 5, ml: 5, unitName: 'mL' }
+                ]
+            },
+
+            // 8. SALURAN CERNA
+            {
+                id: 'domperidone',
+                name: 'Domperidone',
+                category: 'Saluran Cerna',
+                doseMin: 0.25, doseMax: 0.4, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (15-30 menit sebelum makan)',
+                notes: 'Anti-mual & muntah. Berikan sebelum makan.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 10 mg', mg: 10, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 5 mg / 5 mL', mg: 5, ml: 5, unitName: 'mL' },
+                    { type: 'drops', label: 'Drops 5 mg / 1 mL', mg: 5, ml: 1, unitName: 'drops' }
+                ]
+            },
+            {
+                id: 'metoclopramide',
+                name: 'Metoclopramide',
+                category: 'Saluran Cerna',
+                doseMin: 0.1, doseMax: 0.15, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (30 menit sebelum makan)',
+                notes: 'Antiemetik prokinetik.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 5 mg', mg: 5, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 10 mg', mg: 10, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 5 mg / 5 mL', mg: 5, ml: 5, unitName: 'mL' },
+                    { type: 'drops', label: 'Drops 2 mg / 1 mL', mg: 2, ml: 1, unitName: 'drops' }
+                ]
+            },
+            {
+                id: 'ondansetron',
+                name: 'Ondansetron',
+                category: 'Saluran Cerna',
+                doseMin: 0.15, doseMax: 0.15, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '2-3x sehari',
+                notes: 'Antiemetik mual muntah berat.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 4 mg', mg: 4, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 8 mg', mg: 8, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 4 mg / 5 mL', mg: 4, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'hyoscine',
+                name: 'Hyoscine / N-Butylscopolamine',
+                category: 'Saluran Cerna',
+                doseMin: 0.3, doseMax: 0.5, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari',
+                notes: 'Anti-spasmodik mulas/kram perut.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 10 mg', mg: 10, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 5 mg / 5 mL', mg: 5, ml: 5, unitName: 'mL' }
+                ]
+            },
+
+            // 9. ANTIKEJANG
+            {
+                id: 'diazepam',
+                name: 'Diazepam',
+                category: 'Antikejang',
+                doseMin: 0.2, doseMax: 0.3, unit: 'mg/kg/dosis',
+                freqTimes: 3,
+                freqText: '3x sehari (pencegahan kejang demam)',
+                notes: 'Rumatan oral/puyer pencegah kejang demam.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 2 mg', mg: 2, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 5 mg', mg: 5, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 2 mg / 5 mL', mg: 2, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'phenobarbital',
+                name: 'Phenobarbital',
+                category: 'Antikejang',
+                doseMin: 1.5, doseMax: 3.0, unit: 'mg/kg/dosis',
+                freqTimes: 2,
+                freqText: '2x sehari',
+                notes: 'Rumatan antikejang.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 30 mg', mg: 30, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 50 mg', mg: 50, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 100 mg', mg: 100, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 20 mg / 5 mL', mg: 20, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'valproic_acid',
+                name: 'Valproic Acid (Asam Valproat)',
+                category: 'Antikejang',
+                doseMin: 10, doseMax: 15, unit: 'mg/kg/dosis',
+                freqTimes: 2,
+                freqText: '2-3x sehari',
+                notes: 'Antiepilepsi rumatan.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 250 mg', mg: 250, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 500 mg', mg: 500, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 250 mg / 5 mL', mg: 250, ml: 5, unitName: 'mL' }
+                ]
+            },
+
+            // 10. ANTELMINTIK
+            {
+                id: 'pyrantel_pamoate',
+                name: 'Pyrantel Pamoate',
+                category: 'Antelmintik/Cacing',
+                doseMin: 10, doseMax: 10, unit: 'mg/kg/dosis',
+                freqTimes: 1,
+                freqText: 'Dosis Tunggal (Sekali minum)',
+                notes: 'Obat cacing. Maksimal 1000 mg dosis tunggal.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 125 mg', mg: 125, unitName: 'Tablet' },
+                    { type: 'tablet', label: 'Tablet 250 mg', mg: 250, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 125 mg / 5 mL', mg: 125, ml: 5, unitName: 'mL' }
+                ]
+            },
+            {
+                id: 'albendazole',
+                name: 'Albendazole',
+                category: 'Antelmintik/Cacing',
+                doseMin: 200, doseMax: 400, unit: 'mg Dosis Tunggal Fixed',
+                freqTimes: 1,
+                freqText: 'Dosis Tunggal (Sekali minum)',
+                notes: 'Anak 1-2 thn: 200 mg, Anak > 2 thn: 400 mg.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet Kunyah 400 mg', mg: 400, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Suspensi 200 mg / 5 mL', mg: 200, ml: 5, unitName: 'mL' }
+                ]
+            },
+
+            // 11. SUPLEMEN & NUTRISI
+            {
+                id: 'zinc_sulfate',
+                name: 'Zinc Sulfate',
+                category: 'Suplemen',
+                doseMin: 10, doseMax: 20, unit: 'mg/dosis (Sesuai Usia)',
+                freqTimes: 1,
+                freqText: '1x sehari selama 10 hari berturut-turut',
+                notes: 'Anak < 6 bln: 10 mg/hari, Anak > 6 bln: 20 mg/hari (Terapi Diare).',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet Dispersible 20 mg', mg: 20, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup 20 mg / 5 mL', mg: 20, ml: 5, unitName: 'mL' },
+                    { type: 'drops', label: 'Drops 10 mg / 1 mL', mg: 10, ml: 1, unitName: 'drops' }
+                ]
+            },
+            {
+                id: 'ferrous_sulfate',
+                name: 'Ferrous Sulfate (Zat Besi)',
+                category: 'Suplemen',
+                doseMin: 3, doseMax: 6, unit: 'mg Elemental Iron/kg/hari',
+                freqTimes: 1,
+                freqText: '1-2x sehari (diantara waktu makan)',
+                notes: 'Suplemen anemia defisiensi besi.',
+                sediaan: [
+                    { type: 'tablet', label: 'Tablet 300 mg (60 mg Elemental Iron)', mg: 60, unitName: 'Tablet' },
+                    { type: 'syrup', label: 'Sirup (15 mg Elemental Iron / 5 mL)', mg: 15, ml: 5, unitName: 'mL' },
+                    { type: 'drops', label: 'Drops (15 mg Elemental Iron / 1.2 mL)', mg: 15, ml: 1.2, unitName: 'drops' }
+                ]
+            }
+        ];
+
+        // CATEGORY LIST
+        const CATEGORIES = [
+            'SEMUA',
+            'Antivirus & Imunomodulator',
+            'Hemostatik',
+            'Antibiotik',
+            'Analgesik/Antipiretik',
+            'Batuk/Pilek/Asma',
+            'Antihistamin/Alergi',
+            'Kortikosteroid',
+            'Saluran Cerna',
+            'Antikejang',
+            'Antelmintik/Cacing',
+            'Suplemen'
+        ];
+
+        // GLOBAL APP STATE
+        let appState = {
+            activeTab: 'single', // 'single' or 'puyer'
+            patientName: '',
+            weight: 10, // default 10 kg
+            selectedCategory: 'SEMUA',
+            single: {
+                drugId: 'asam_traneksamat',
+                selectedSediaanIndex: 0
+            },
+            puyer: {
+                count: 10,
+                signa: '3 x sehari 1 bungkus (Sesudah Makan)',
+                rows: []
+            }
+        };
+
+        // DOM LOAD INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            initCategoryFilters();
+            initDatabaseDropdowns();
+            setupEventListeners();
+            updateDateInPrescription();
+            
+            // Set default weight 10kg & trigger calculation
+            setWeightPreset(10);
+            
+            // Add initial 1 row for Puyer
+            addPuyerRow({
+                drugId: 'asam_traneksamat',
+                sediaanIndex: 0
+            });
+        });
+
+        function setupEventListeners() {
+            document.getElementById('global-patient-name').addEventListener('input', (e) => {
+                appState.patientName = e.target.value;
+                updatePrescriptionSummary();
+            });
+
+            document.getElementById('global-weight').addEventListener('input', (e) => {
+                appState.weight = parseFloat(e.target.value) || 0;
+                calculateSingleDose();
+                calculatePuyerAll();
+                updatePrescriptionSummary();
+            });
+        }
+
+        function adjustWeight(delta) {
+            const el = document.getElementById('global-weight');
+            let val = (parseFloat(el.value) || 0) + delta;
+            if (val < 0) val = 0;
+            el.value = Math.round(val * 10) / 10;
+            appState.weight = parseFloat(el.value);
+            calculateSingleDose();
+            calculatePuyerAll();
+            updatePrescriptionSummary();
+        }
+
+        function setWeightPreset(weight) {
+            const el = document.getElementById('global-weight');
+            el.value = weight;
+            appState.weight = weight;
+            calculateSingleDose();
+            calculatePuyerAll();
+            updatePrescriptionSummary();
+        }
+
+        function switchTab(tabName) {
+            appState.activeTab = tabName;
+            const btnSingle = document.getElementById('btn-tab-1');
+            const btnPuyer = document.getElementById('btn-tab-2');
+            const tabSingle = document.getElementById('tab-single');
+            const tabPuyer = document.getElementById('tab-puyer');
+
+            if (tabName === 'single') {
+                btnSingle.className = "flex-1 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center space-x-2 transition-all duration-200 bg-white text-teal-800 shadow-sm";
+                btnPuyer.className = "flex-1 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center space-x-2 transition-all duration-200 text-slate-600 hover:text-slate-900";
+                tabSingle.classList.remove('hidden');
+                tabPuyer.classList.add('hidden');
+            } else {
+                btnPuyer.className = "flex-1 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center space-x-2 transition-all duration-200 bg-white text-teal-800 shadow-sm";
+                btnSingle.className = "flex-1 py-3 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center space-x-2 transition-all duration-200 text-slate-600 hover:text-slate-900";
+                tabPuyer.classList.remove('hidden');
+                tabSingle.classList.add('hidden');
+            }
+        }
+
+        // INIT CATEGORY FILTERS
+        function initCategoryFilters() {
+            const container = document.getElementById('category-filter-container');
+            container.innerHTML = '';
+
+            CATEGORIES.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = cat === 'SEMUA' 
+                    ? "px-3 py-1 rounded-lg bg-teal-700 text-white font-bold transition shadow-sm"
+                    : "px-3 py-1 rounded-lg bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200 transition";
+                btn.textContent = cat;
+                btn.onclick = () => filterByCategory(cat, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function filterByCategory(category, btnEl) {
+            appState.selectedCategory = category;
+            
+            // Highlight active button
+            const container = document.getElementById('category-filter-container');
+            Array.from(container.children).forEach(b => {
+                b.className = "px-3 py-1 rounded-lg bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200 transition";
+            });
+            btnEl.className = "px-3 py-1 rounded-lg bg-teal-700 text-white font-bold transition shadow-sm";
+
+            initDatabaseDropdowns();
+        }
+
+        // POPULATE DATABASE DROPDOWNS
+        function initDatabaseDropdowns() {
+            const singleSelect = document.getElementById('single-drug-select');
+            singleSelect.innerHTML = '';
+
+            const filtered = DRUG_DATABASE.filter(d => {
+                if (appState.selectedCategory === 'SEMUA') return true;
+                return d.category === appState.selectedCategory;
+            });
+
+            if (filtered.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.textContent = "Tidak ada obat dalam kategori ini";
+                singleSelect.appendChild(opt);
+                return;
+            }
+
+            filtered.forEach((drug) => {
+                const opt = document.createElement('option');
+                opt.value = drug.id;
+                opt.textContent = `${drug.name} (${drug.category})`;
+                singleSelect.appendChild(opt);
+            });
+
+            singleSelect.selectedIndex = 0;
+            onSingleDrugSelect();
+        }
+
+        function filterDrugDropdown() {
+            const query = document.getElementById('drug-search').value.toLowerCase();
+            const singleSelect = document.getElementById('single-drug-select');
+            const clearBtn = document.getElementById('clear-search-btn');
+
+            if (query.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
+            singleSelect.innerHTML = '';
+            
+            let count = 0;
+            DRUG_DATABASE.forEach((drug) => {
+                if (drug.name.toLowerCase().includes(query) || drug.category.toLowerCase().includes(query)) {
+                    const opt = document.createElement('option');
+                    opt.value = drug.id;
+                    opt.textContent = `${drug.name} (${drug.category})`;
+                    singleSelect.appendChild(opt);
+                    count++;
+                }
+            });
+
+            if (count === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.disabled = true;
+                opt.textContent = "Obat tidak ditemukan...";
+                singleSelect.appendChild(opt);
+            } else {
+                singleSelect.selectedIndex = 0;
+                onSingleDrugSelect();
+            }
+        }
+
+        function clearDrugSearch() {
+            document.getElementById('drug-search').value = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            initDatabaseDropdowns();
+        }
+
+        // ================= LOGIKA TAB 1: DOSIS TUNGGAL OTOMATIS =================
+        function onSingleDrugSelect() {
+            const drugId = document.getElementById('single-drug-select').value;
+            appState.single.drugId = drugId;
+            const drug = DRUG_DATABASE.find(d => d.id === drugId);
+
+            if (!drug) return;
+
+            // Populate sediaan dropdown
+            const sediaanSelect = document.getElementById('single-sediaan-select');
+            sediaanSelect.innerHTML = '';
+
+            drug.sediaan.forEach((s, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                const icon = s.type === 'tablet' ? '💊' : (s.type === 'drops' ? '💧' : '🧴');
+                opt.textContent = `${icon} ${s.label}`;
+                sediaanSelect.appendChild(opt);
+            });
+
+            sediaanSelect.selectedIndex = 0;
+
+            // Update read-only info
+            document.getElementById('info-dose-std').innerText = `${drug.doseMin === drug.doseMax ? drug.doseMin : drug.doseMin + ' - ' + drug.doseMax} ${drug.unit}`;
+            document.getElementById('info-freq-std').innerText = drug.freqText;
+
+            calculateSingleDose();
+        }
+
+        function calculateSingleDose() {
+            const weight = appState.weight;
+            const placeholder = document.getElementById('single-placeholder');
+            const resultCard = document.getElementById('single-result-card');
+
+            if (weight <= 0) {
+                placeholder.classList.remove('hidden');
+                resultCard.classList.add('hidden');
+                return;
+            }
+
+            const drug = DRUG_DATABASE.find(d => d.id === appState.single.drugId);
+            if (!drug) {
+                placeholder.classList.remove('hidden');
+                resultCard.classList.add('hidden');
+                return;
+            }
+
+            const sediaanIndex = parseInt(document.getElementById('single-sediaan-select').value) || 0;
+            const sediaan = drug.sediaan[sediaanIndex] || drug.sediaan[0];
+
+            // 1. Hitung Dosis mg
+            const minMg = weight * drug.doseMin;
+            const maxMg = weight * drug.doseMax;
+            const targetAvgMg = (minMg + maxMg) / 2;
+
+            // 2. Hitung Fisik (Tablet / mL / drops)
+            let physicalMin = 0, physicalMax = 0, physicalTarget = 0;
+            let physicalUnitText = '';
+
+            if (sediaan.type === 'tablet') {
+                physicalMin = minMg / sediaan.mg;
+                physicalMax = maxMg / sediaan.mg;
+                physicalTarget = targetAvgMg / sediaan.mg;
+                physicalUnitText = sediaan.unitName || 'Tablet';
+            } else {
+                // Liquid (Sirup / Drops / Dry Syrup)
+                physicalMin = (minMg / sediaan.mg) * sediaan.ml;
+                physicalMax = (maxMg / sediaan.mg) * sediaan.ml;
+                physicalTarget = (targetAvgMg / sediaan.mg) * sediaan.ml;
+                physicalUnitText = sediaan.unitName || 'mL';
+            }
+
+            // Display UI
+            placeholder.classList.add('hidden');
+            resultCard.classList.remove('hidden');
+
+            document.getElementById('res-drug-category').innerText = drug.category;
+            document.getElementById('res-drug-title').innerText = drug.name;
+
+            // Form Badge
+            const formBadge = document.getElementById('res-form-type-badge');
+            if (sediaan.type === 'tablet') {
+                formBadge.className = "text-xs bg-amber-400 text-slate-950 px-3 py-1 rounded-xl font-black shadow";
+                formBadge.innerText = "SEDIAAN TABLET / PADAT";
+            } else if (sediaan.type === 'drops') {
+                formBadge.className = "text-xs bg-cyan-300 text-slate-950 px-3 py-1 rounded-xl font-black shadow";
+                formBadge.innerText = "SEDIAAN DROPS / TETES";
+            } else {
+                formBadge.className = "text-xs bg-emerald-300 text-slate-950 px-3 py-1 rounded-xl font-black shadow";
+                formBadge.innerText = "SEDIAAN SIRUP / CAIR";
+            }
+
+            // Automatic Signa String
+            let amountString = '';
+            if (sediaan.type === 'tablet') {
+                amountString = formatTabletQuantity(physicalTarget);
+            } else if (sediaan.unitName === 'mL') {
+                amountString = `${formatNum(physicalTarget)} mL ${formatSpoonEquivalent(physicalTarget)}`;
+            } else {
+                amountString = `${formatNum(physicalTarget)} ${physicalUnitText}`;
+            }
+
+            document.getElementById('res-signa-auto').innerText = `${drug.freqTimes} x sehari ${amountString}`;
+            document.getElementById('res-sediaan-desc').innerText = `Sediaan: ${sediaan.label} | Frekuensi: ${drug.freqText}`;
+
+            // Physical & Mg details
+            if (sediaan.type === 'tablet') {
+                document.getElementById('res-physical-amount').innerText = formatTabletQuantity(physicalTarget);
+                document.getElementById('res-physical-range').innerText = `Rentang: ${formatTabletQuantity(physicalMin)} - ${formatTabletQuantity(physicalMax)}`;
+            } else if (sediaan.unitName === 'mL') {
+                document.getElementById('res-physical-amount').innerText = `${formatNum(physicalTarget)} mL ${formatSpoonEquivalent(physicalTarget)}`;
+                document.getElementById('res-physical-range').innerText = `Rentang: ${formatNum(physicalMin)} - ${formatNum(physicalMax)} mL`;
+            } else {
+                document.getElementById('res-physical-amount').innerText = `${formatNum(physicalTarget)} ${physicalUnitText}`;
+                document.getElementById('res-physical-range').innerText = `Rentang: ${formatNum(physicalMin)} - ${formatNum(physicalMax)} ${physicalUnitText}`;
+            }
+
+            if (drug.doseMin === drug.doseMax) {
+                document.getElementById('res-mg-per-dose').innerText = `${formatNum(minMg)} mg`;
+                document.getElementById('res-mg-range').innerText = `Dosis tepat per kali`;
+            } else {
+                document.getElementById('res-mg-per-dose').innerText = `${formatNum(targetAvgMg)} mg`;
+                document.getElementById('res-mg-range').innerText = `Rentang: ${formatNum(minMg)} - ${formatNum(maxMg)} mg`;
+            }
+
+            // Daily mg
+            const dailyMin = minMg * drug.freqTimes;
+            const dailyMax = maxMg * drug.freqTimes;
+            document.getElementById('res-daily-mg').innerText = drug.doseMin === drug.doseMax
+                ? `~ ${formatNum(dailyMin)} mg / hari`
+                : `~ ${formatNum(dailyMin)} - ${formatNum(dailyMax)} mg / hari`;
+
+            document.getElementById('res-notes').innerText = `${drug.notes} (Dihitung presisi BB ${weight} kg)`;
+        }
+
+        function transferSingleToPuyer() {
+            const drugId = appState.single.drugId;
+            const sediaanIndex = parseInt(document.getElementById('single-sediaan-select').value) || 0;
+
+            switchTab('puyer');
+            addPuyerRow({
+                drugId: drugId,
+                sediaanIndex: sediaanIndex
+            });
+        }
+
+
+        // ================= LOGIKA TAB 2: RACIKAN PUYER OTOMATIS =================
+        function setPuyerCountPreset(count) {
+            document.getElementById('puyer-count').value = count;
+            calculatePuyerAll();
+        }
+
+        function addPuyerRow(presetData = null) {
+            const rowId = 'puyer-row-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+            
+            const defaultDrugId = presetData ? presetData.drugId : 'asam_traneksamat';
+            const drug = DRUG_DATABASE.find(d => d.id === defaultDrugId) || DRUG_DATABASE[0];
+            
+            // Cari sediaan tablet pertama jika ada, atau sediaan teratas
+            let tabletSediaanIdx = drug.sediaan.findIndex(s => s.type === 'tablet');
+            if (tabletSediaanIdx === -1) tabletSediaanIdx = 0;
+
+            const newRow = {
+                id: rowId,
+                drugId: defaultDrugId,
+                sediaanIndex: presetData ? presetData.sediaanIndex : tabletSediaanIdx,
+                targetMgPerKg: drug.doseMin,
+                mgPerBungkus: 0,
+                totalTabletsNeeded: 0
+            };
+
+            appState.puyer.rows.push(newRow);
+            renderPuyerRows();
+            calculatePuyerAll();
+        }
+
+        function removePuyerRow(rowId) {
+            appState.puyer.rows = appState.puyer.rows.filter(r => r.id !== rowId);
+            renderPuyerRows();
+            calculatePuyerAll();
+        }
+
+        function renderPuyerRows() {
+            const container = document.getElementById('puyer-rows-container');
+            const emptyState = document.getElementById('puyer-empty-state');
+            const countBadge = document.getElementById('puyer-items-count');
+
+            countBadge.innerText = `${appState.puyer.rows.length} Obat`;
+
+            if (appState.puyer.rows.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = '';
+
+            appState.puyer.rows.forEach((row, idx) => {
+                const drug = DRUG_DATABASE.find(d => d.id === row.drugId) || DRUG_DATABASE[0];
+
+                const rowEl = document.createElement('div');
+                rowEl.className = "bg-slate-50 border border-slate-200 rounded-xl p-3.5 sm:p-4 space-y-3 relative group transition hover:border-teal-300 hover:shadow-sm";
+
+                // Build Drug Options
+                let drugOptionsHtml = '';
+                DRUG_DATABASE.forEach(d => {
+                    const sel = d.id === row.drugId ? 'selected' : '';
+                    drugOptionsHtml += `<option value="${d.id}" ${sel}>${d.name} (${d.category})</option>`;
+                });
+
+                // Build Sediaan Options (Semua sediaan obat ini)
+                let sediaanOptionsHtml = '';
+                drug.sediaan.forEach((s, sIdx) => {
+                    const sel = sIdx === row.sediaanIndex ? 'selected' : '';
+                    const icon = s.type === 'tablet' ? '💊' : '🧴';
+                    sediaanOptionsHtml += `<option value="${sIdx}" ${sel}>${icon} ${s.label}</option>`;
+                });
+
+                rowEl.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-5 h-5 rounded-full bg-teal-700 text-white text-[10px] font-extrabold flex items-center justify-center">${idx + 1}</span>
+                            <span class="text-xs font-bold text-slate-800">Komponen Racikan #${idx + 1}</span>
+                        </div>
+                        <button type="button" onclick="removePuyerRow('${row.id}')" class="text-slate-400 hover:text-rose-600 text-xs font-semibold px-2 py-1 rounded transition">
+                            <i class="fa-solid fa-trash-can mr-1"></i> Hapus
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                        
+                        <!-- Select Drug -->
+                        <div class="sm:col-span-5">
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Obat Database</label>
+                            <select onchange="onPuyerRowDrugChange('${row.id}', this.value)" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:ring-2 focus:ring-teal-500">
+                                ${drugOptionsHtml}
+                            </select>
+                        </div>
+
+                        <!-- Select Sediaan Utuh -->
+                        <div class="sm:col-span-4">
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Sediaan Tablet/Kapsul Utuh</label>
+                            <select onchange="onPuyerRowSediaanChange('${row.id}', parseInt(this.value))" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-teal-500">
+                                ${sediaanOptionsHtml}
+                            </select>
+                        </div>
+
+                        <!-- Target Mg / kgBB -->
+                        <div class="sm:col-span-3">
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Target Dosis (mg/kg/dosis)</label>
+                            <input type="number" step="0.1" value="${row.targetMgPerKg}" 
+                                oninput="updateRowData('${row.id}', 'targetMgPerKg', parseFloat(this.value) || 0)"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-extrabold text-teal-800 focus:ring-2 focus:ring-teal-500">
+                        </div>
+                    </div>
+
+                    <!-- CALCULATION DISPLAY FOR THIS ROW -->
+                    <div id="row-calc-${row.id}" class="bg-teal-50/80 rounded-lg p-2.5 border border-teal-100 flex flex-wrap justify-between items-center text-xs gap-2">
+                        <span class="text-slate-600">Dosis per Bungkus: <strong class="text-slate-800" id="row-mg-pack-${row.id}">- mg</strong></span>
+                        <span class="text-slate-600">Total mg Racikan: <strong class="text-slate-800" id="row-total-mg-${row.id}">- mg</strong></span>
+                        <span class="text-teal-900 font-extrabold bg-white px-3 py-1 rounded-md border border-teal-200 shadow-sm" id="row-tablets-${row.id}">= 0 Tablet</span>
+                    </div>
+                `;
+
+                container.appendChild(rowEl);
+            });
+        }
+
+        function onPuyerRowDrugChange(rowId, newDrugId) {
+            const row = appState.puyer.rows.find(r => r.id === rowId);
+            if (!row) return;
+
+            const drug = DRUG_DATABASE.find(d => d.id === newDrugId);
+            if (!drug) return;
+
+            row.drugId = newDrugId;
+            let tabIdx = drug.sediaan.findIndex(s => s.type === 'tablet');
+            row.sediaanIndex = tabIdx !== -1 ? tabIdx : 0;
+            row.targetMgPerKg = drug.doseMin;
+
+            renderPuyerRows();
+            calculatePuyerAll();
+        }
+
+        function onPuyerRowSediaanChange(rowId, newSediaanIndex) {
+            const row = appState.puyer.rows.find(r => r.id === rowId);
+            if (!row) return;
+
+            row.sediaanIndex = newSediaanIndex;
+            calculatePuyerAll();
+        }
+
+        function updateRowData(rowId, field, val) {
+            const row = appState.puyer.rows.find(r => r.id === rowId);
+            if (!row) return;
+
+            row[field] = val;
+            calculatePuyerAll();
+        }
+
+        function calculatePuyerAll() {
+            const puyerCount = parseInt(document.getElementById('puyer-count').value) || 10;
+            appState.puyer.count = puyerCount;
+            const weight = appState.weight;
+
+            appState.puyer.rows.forEach(row => {
+                const drug = DRUG_DATABASE.find(d => d.id === row.drugId) || DRUG_DATABASE[0];
+                const sediaan = drug.sediaan[row.sediaanIndex] || drug.sediaan[0];
+
+                const mgPerBungkus = weight * row.targetMgPerKg;
+                const totalMgRacikan = mgPerBungkus * puyerCount;
+                const totalTabletsNeeded = sediaan.mg > 0 ? (totalMgRacikan / sediaan.mg) : 0;
+
+                row.mgPerBungkus = mgPerBungkus;
+                row.totalMgRacikan = totalMgRacikan;
+                row.totalTabletsNeeded = totalTabletsNeeded;
+
+                // Update UI Row Elements
+                const elMgPack = document.getElementById(`row-mg-pack-${row.id}`);
+                const elTotalMg = document.getElementById(`row-total-mg-${row.id}`);
+                const elTablets = document.getElementById(`row-tablets-${row.id}`);
+
+                if (elMgPack) elMgPack.innerText = `${formatNum(mgPerBungkus)} mg`;
+                if (elTotalMg) elTotalMg.innerText = `${formatNum(totalMgRacikan)} mg`;
+                if (elTablets) elTablets.innerText = `= ${formatTabletQuantity(totalTabletsNeeded)}`;
+            });
+
+            updatePrescriptionSummary();
+        }
+
+        function updatePrescriptionSummary() {
+            const patientName = appState.patientName || "An. Tanpa Nama";
+            const weight = appState.weight || 0;
+            const puyerCount = appState.puyer.count || 10;
+            const signa = document.getElementById('puyer-signa').value || "-";
+
+            document.getElementById('summary-patient-name').innerText = patientName;
+            document.getElementById('summary-patient-weight').innerText = `${weight} kg`;
+            document.getElementById('summary-puyer-count').innerText = `${puyerCount} Bungkus`;
+            document.getElementById('summary-signa').innerText = signa;
+
+            const tableBody = document.getElementById('summary-table-body');
+            tableBody.innerHTML = '';
+
+            if (appState.puyer.rows.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Belum ada komponen obat dalam racikan puyer.</td></tr>`;
+                return;
+            }
+
+            appState.puyer.rows.forEach((row, idx) => {
+                const drug = DRUG_DATABASE.find(d => d.id === row.drugId) || DRUG_DATABASE[0];
+                const sediaan = drug.sediaan[row.sediaanIndex] || drug.sediaan[0];
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-100/50 transition";
+                tr.innerHTML = `
+                    <td class="py-2 px-2 font-semibold text-slate-500">${idx + 1}</td>
+                    <td class="py-2 px-2 font-bold text-slate-800">${drug.name}</td>
+                    <td class="py-2 px-2 text-slate-600">${sediaan.label}</td>
+                    <td class="py-2 px-2 text-slate-600">${formatNum(row.mgPerBungkus || 0)} mg</td>
+                    <td class="py-2 px-2 font-black text-teal-800 text-right">${formatTabletQuantity(row.totalTabletsNeeded || 0)}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function updateDateInPrescription() {
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            document.getElementById('summary-date').innerText = `${dd}/${mm}/${yyyy}`;
+        }
+
+        function triggerPrintPrescription() {
+            window.print();
+        }
+
+        // ================= HELPER FORMATTERS =================
+        function formatNum(num) {
+            if (isNaN(num) || num === 0) return '0';
+            return Math.round(num * 100) / 100;
+        }
+
+        /**
+         * Konversi mL ke takaran sendok teh (cth / 5 mL)
+         */
+        function formatSpoonEquivalent(ml) {
+            if (isNaN(ml) || ml <= 0) return '';
+            const cth = ml / 5;
+            if (Math.abs(cth - 0.25) < 0.05) return '(¼ cth)';
+            if (Math.abs(cth - 0.5) < 0.05) return '(½ cth)';
+            if (Math.abs(cth - 0.75) < 0.05) return '(¾ cth)';
+            if (Math.abs(cth - 1.0) < 0.05) return '(1 cth / sdt)';
+            if (Math.abs(cth - 1.5) < 0.05) return '(1 ½ cth)';
+            if (Math.abs(cth - 2.0) < 0.05) return '(2 cth)';
+            return `(~${formatNum(cth)} cth)`;
+        }
+
+        /**
+         * Mengubah desimal tablet menjadi pecahan medis yang intuitif
+         */
+        function formatTabletQuantity(val) {
+            if (isNaN(val) || val <= 0) return '0 Tablet';
+
+            const intPart = Math.floor(val);
+            const fracPart = val - intPart;
+
+            let fracSymbol = '';
+            if (fracPart >= 0.875) return `${intPart + 1} Tablet`;
+            else if (fracPart >= 0.70) fracSymbol = '¾';
+            else if (fracPart >= 0.60) fracSymbol = '⅔';
+            else if (fracPart >= 0.40) fracSymbol = '½';
+            else if (fracPart >= 0.28) fracSymbol = '⅓';
+            else if (fracPart >= 0.15) fracSymbol = '¼';
+
+            const decFormatted = (Math.round(val * 100) / 100).toString();
+
+            if (fracSymbol) {
+                if (intPart === 0) return `${fracSymbol} Tablet (${decFormatted} Tab)`;
+                return `${intPart} ${fracSymbol} Tablet (${decFormatted} Tab)`;
+            }
+            return `${decFormatted} Tablet`;
+        }
+    </script>
+</body>
+</html>
